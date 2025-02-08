@@ -1,0 +1,16 @@
+[package]
+name = "libsurvex"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default =["mnemo"]
+mnemo = ["libmnemo"]
+
+[dependencies.libmnemo]
+path = "../libmnemo"
+version = "*"
+optional = true
+
+[dependencies]
+csv ={ version = "*" }
