@@ -1,7 +1,4 @@
-use std::fmt::{Display, Write};
-use super::{AsStr, ABC};
-use std::str::FromStr;
-
+use std::fmt::Display;
 
 #[derive(Default,Clone, Eq, PartialEq, Hash, Debug)]
 pub struct PointName (pub char, pub usize);
@@ -28,10 +25,5 @@ impl PointName {
     /// Creates a new clone and increments it by one
     pub fn inc (&mut self) -> Self {
         Self ('A', self.1 + 1)
-    }
-}
-impl AsStr for PointName {
-    fn as_str(&self) -> String {
-        format!("{}", self)
     }
 }

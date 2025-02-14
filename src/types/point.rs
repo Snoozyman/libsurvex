@@ -1,5 +1,5 @@
-use std::{fmt::{self, Display}, str::FromStr};
-use super::PointName;
+use std::fmt::{self, Display};
+use crate::types::pointname::PointName;
 
 #[derive(Default, Debug)]
 pub struct SurvexPoint {
@@ -34,12 +34,6 @@ impl SurvexPoint {
     pub fn set_tape(&mut self, t: f32) {
         self.tape = Tape(t);
     }
-    pub fn as_string(&self) -> String {
-        let SurvexPoint { from, to, heading, back_compass ,tape, depth } = self;
-        let Depth (fromd, tod) = depth;
-        let compass = (heading + back_compass)/2.0;
-        format!("{} {} {} {} {} {}", from, to, tape, heading, fromd, tod)
-    }
 }
 impl Display for Tape {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -48,6 +42,15 @@ impl Display for Tape {
 }
 impl Display for Depth {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\t{}", self.0, self.1)
+        write!(f, "{} {}", self.0, self.1)
+    }
+}
+impl Display for SurvexPoint {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let sep = "\t";
+        let SurvexPoint { from, to, heading, back_compass ,tape, depth } = self;
+        let output = format!("{} {} {} {} {}", from, to, tape, heading, depth);
+        writeln!(f,"{}", output.replace(" ", sep))?;
+        Ok(())
     }
 }

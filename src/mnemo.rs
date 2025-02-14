@@ -1,47 +1,53 @@
 #[cfg(feature="mnemo")]
 extern crate libmnemo as mnemo;
+#[cfg(feature="mnemo")]
+use libmnemo::types::{NemoFile, NemoPoint, NemoTypeShot};
 
-use libmnemo::types::{NemoFile, NemoPoint};
-use crate::{types::ABC, PointName, SurvexFile, SurvexPoint, SurvexProject};
-use std::rc::Rc;
+use crate::types::project::SurvexProject;
+use crate::types::file::SurvexFile;
+use crate::types::ABC;
+use crate::types::point::{SurvexPoint, Tape, Depth};
+use crate::types::pointname::PointName;
 
-pub trait FromNemo<T, U> {
-    fn from_nemo(input: &T) -> U;
-}
+use std::{rc::Rc, vec};
+
 
 #[cfg(feature="mnemo")]
-impl FromNemo<mnemo::NemoReader, SurvexProject> for SurvexProject {
-    fn from_nemo(nemo: &mnemo::NemoReader) -> SurvexProject {
-        let mut vec = vec![];
+impl From<&mnemo::NemoReader> for SurvexProject {
+    fn from(nemo: &mnemo::NemoReader) -> SurvexProject {
+        let mut vec: Vec<Rc<SurvexFile>> = vec![];
         for (i, file) in nemo.files.iter().enumerate() {
             let c = ABC.chars().nth(i).unwrap();
-            
-            let f = translate_file(file, c);
-            vec.push(Rc::new(f));
+            vec.push(Rc::new(translate_file(file, c)));
         }
         SurvexProject {
             files: vec, ..Default::default()
         }
     }
 }
-fn translate_file(nmf: &NemoFile, c: char) -> SurvexFile {
+fn translate_file(nmf: &NemoFile, c:char ) -> SurvexFile {
     let mut vec = vec![];
+    let mut first_point = PointName::default();
     for (i,point) in nmf.points.iter().enumerate() {
-        vec.push(tranlate_points(point, c, i+1));
+        if i == 0 { first_point.0 = c; first_point.1 = i + 1; }
+        if point.typeshot != NemoTypeShot::EOC {
+            vec.push(translate_point(point, c, i+1));
+        }
     }
     SurvexFile {
-         point_data: vec, ..Default::default()
+        name: nmf.filename.clone(), id: c, point_data: vec, first_point
+        
     }
 }
-fn tranlate_points (point: &NemoPoint, c: char, idx: usize) -> Rc<SurvexPoint> {
+fn translate_point(point: &NemoPoint, c: char, idx: usize) -> SurvexPoint {
     let mut from = PointName (c,idx);
     let to = from.inc();
-    Rc::new(SurvexPoint {
+    SurvexPoint {
         from,
         to,
         heading: point.heading._in,
         back_compass: point.heading._out,
-        tape: crate::Tape(point.length),
-        depth: crate::Depth(point.depth._in,point.depth._out)
-    })
+        tape: Tape(point.length),
+        depth: Depth(point.depth._in,point.depth._out)
+    }
 }
