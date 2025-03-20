@@ -2,8 +2,9 @@ use std::{fmt::Display, rc::Rc};
 
 use crate::types::file::SurvexFile;
 use crate::types::metadata::MetaData;
-use crate::SurvexMeta;
-use crate::TrimAndLower;
+use crate::types::survexmeta::SurvexMeta;
+
+use super::metadata::Survex;
 
 #[derive(Default, Debug)]
 pub struct SurvexProject {
@@ -14,20 +15,18 @@ pub struct SurvexProject {
     pub files: Vec<Rc<SurvexFile>>,
 }
 
+pub type SurvexOptions = Vec<MetaData<Survex>>;
+
 impl SurvexProject {
     pub fn new() -> Self {
         Self { ext: ".svx".into(), ..Default::default() }
     }
-    fn add_file(&mut self, f: SurvexFile)
-    {
-       let b: Rc<SurvexFile> = Rc::new(f);
-       self.files.push(b);
-    }
-    fn get_files(&self) -> &Vec<Rc<SurvexFile>> {
-        self.files.as_ref()
-    }
-    pub fn set_author(&mut self, author: String) {
-        self.author = author;
+    pub fn options(self, options: SurvexOptions) -> SurvexProject {
+        let mut header = self.header;
+        header.options = options;
+        Self {
+            header, ..self
+        }
     }
     pub fn print(&self) {
         println!("Name: {}", self.name);
@@ -54,6 +53,19 @@ impl SurvexProject {
             header: self.header.author(name.to_string().as_str()),
             ..self
         }
+    }
+    pub fn fix(self, point: &str,lat: f64, lon: f64, elevation: f64){
+        let meta = MetaData::new("fix", Some(
+            format!("{} {} {} {}", point, lat, lon, elevation).as_str()
+        ));
+        self.add_options(meta);
+    }
+    pub fn entrance(self, name: &str){
+        let meta = MetaData::new("entrance", Some(name));
+        self.add_options(meta);
+    }
+    fn add_options(mut self, meta: MetaData<Survex>){
+        self.header.options.push(meta);
     }
 }
 impl Display for SurvexProject {

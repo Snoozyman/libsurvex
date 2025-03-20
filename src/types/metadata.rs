@@ -1,5 +1,5 @@
 use std::{ fmt::Display};
-use crate::TrimAndLower;
+use crate::utils::TrimAndLower;
 
 #[derive(Debug, Default, Copy, Clone)]
 pub enum Survex {
@@ -18,7 +18,7 @@ pub struct MetaData<Survex>{
 impl MetaData<Survex> {
     pub fn new<'s, U>(data: U, arg: Option<U>) -> Self
     where  's: 'static,
-            U: ToString + ToOwned,
+            U: ToString,
     {
         let opt_arg: Option<String> = arg.map(|a| a.to_string());
         Self {
@@ -47,11 +47,10 @@ impl Display for Survex {
 }
 impl Survex {
     pub fn as_char(self) -> char {
-        let c = match self {
+        match self {
             Self::COMMENT => ';',
             Self::HEADER => '*',
-        };
-        c
+        }
     }
 }
 impl Display for MetaData<Survex> {
