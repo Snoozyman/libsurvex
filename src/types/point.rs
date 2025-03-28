@@ -23,10 +23,10 @@ pub struct SurvexPoint {
     pub depth:  Depth,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, PartialEq)]
 pub struct Depth(pub f32, pub f32);
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, PartialEq)]
 pub struct Tape(pub f32);
 
 /// SurvexPoint implementation
@@ -36,19 +36,53 @@ impl SurvexPoint {
     }
     /// Set from and to points
     ///
-    /// * `f` - from point as [&str]
-    /// * `t` - to point as [&str]
-    pub fn set_from_to(&mut self, f: &str, t: &str ) {
-        let from = PointName::from(f);
-        let to = PointName::from(t);
+    /// * `from` - from point as [&str]
+    /// * `to` - to point as [&str]
+    /// 
+    /// # Example
+    /// ```
+    ///     use libsurvex::{SurvexPoint, PointName};
+    ///     let mut point = SurvexPoint::new();
+    ///     point.set_from_to("A1", "A2");
+    ///     assert_eq!(point.from, PointName::from("A1"));
+    ///     assert_eq!(point.to, PointName::from("A2"));
+    /// 
+    pub fn set_from_to(&mut self, from: &str, to: &str ) {
+        let from = PointName::from(from);
+        let to = PointName::from(to);
         self.from = from;
         self.to = to;
     }
-    pub fn set_depth(&mut self, f: f32, t: f32) {
-        self.depth = Depth(f,t);
+    /// Set depth
+    /// 
+    /// * `from` - from depth as [f32]
+    /// * `to` - to depth as [f32]
+    /// 
+    /// # Example
+    /// ```
+    ///     use libsurvex::{SurvexPoint, PointName};
+    ///     use libsurvex::types::point::Depth;
+    ///     let mut point = SurvexPoint::new();
+    ///     point.set_depth(1.0, 2.0);
+    ///     assert_eq!(point.depth, Depth(1.0,2.0));
+    /// ```
+    pub fn set_depth(&mut self, from: f32, to: f32) {
+        self.depth = Depth(from,to);
     }
-    pub fn set_tape(&mut self, t: f32) {
-        self.tape = Tape(t);
+    /// Set tape
+    /// 
+    /// * `tape` - tape as [f32]
+    /// 
+    /// # Example
+    /// ```
+    ///     use libsurvex::{SurvexPoint, PointName};
+    ///     use libsurvex::types::point::Tape;
+    ///     let mut point = SurvexPoint::new();
+    ///     point.set_tape(1.0);
+    ///     assert_eq!(point.tape, Tape(1.0));
+    /// ```
+    pub fn set_tape(&mut self, tape: f32) {
+        self.tape = Tape(tape);
     }
 }
 impl Display for Tape {
@@ -75,17 +109,18 @@ impl Display for SurvexPoint {
         Ok(())
     }
 }
-/// [From<&str>] implementation for [SurvexPoint]
-/// 
-/// # Example
-/// 
-/// ```
-/// use libsurvex::SurvexPoint;
-/// let test = "A1\tA2\t1.0\t2.0\t3.0\t4.0";
-/// let point = SurvexPoint::from(test);
-/// println!("{}", point);
-/// ```
 impl From<&str> for SurvexPoint {
+    /// [From<&str>] implementation for [SurvexPoint]
+    /// 
+    /// # Example
+    /// 
+    /// ```
+    ///     use libsurvex::{SurvexPoint, PointName};
+    ///     let test = "A1\tA2\t1.0\t2.0\t3.0\t4.0\t5.0";
+    ///     let point = SurvexPoint::from(test);
+    ///     let pointname = PointName::from("A1");
+    ///     assert_eq!(point.from, pointname);
+    /// ```
     fn from(s: &str) -> Self {
         let vec_point = s.split("\t").collect::<Vec<&str>>();
         Self {

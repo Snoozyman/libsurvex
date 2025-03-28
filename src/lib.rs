@@ -15,6 +15,7 @@ pub use crate::{
         file::SurvexFile,
         metadata::MetaData,
         point::SurvexPoint,
+        pointname::PointName,
         project::SurvexOptions,
         project::SurvexProject,
         survexmeta::SurvexMeta,
@@ -32,8 +33,17 @@ mod error;
 /// Writes project to file
 /// 
 /// * `project` - [SurvexProject]
-/// * `path` - [PathBuf]
-pub fn write_project(project: &SurvexProject, path: &PathBuf) {
+/// * `path` - [str]
+/// 
+/// # Example
+/// 
+/// ```
+/// use libsurvex::{SurvexProject, write_project};
+/// let project = SurvexProject::new();
+/// //write_project(&project, "project.svx");
+/// 
+/// ```
+pub fn write_project(project: &SurvexProject, path: &str) {
     let path = PathBuf::from(&path);
     let mut file = std::fs::File::create(path).unwrap();
     let _ = writeln!(file, "{}", project);
